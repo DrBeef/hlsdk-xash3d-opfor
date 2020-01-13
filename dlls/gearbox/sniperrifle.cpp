@@ -107,27 +107,104 @@ void CSniperrifle::Holster( int skiplocal )
 
 	if ( m_fInZoom )
 	{
-		SecondaryAttack( );
+		ToggleScope( false );
 	}
 }
 
 void CSniperrifle::SecondaryAttack()
 {
-	if ( m_pPlayer->pev->fov != 0 )
-	{
-		m_pPlayer->pev->fov = m_pPlayer->m_iFOV = 0; // 0 means reset to default fov
-		m_fInZoom = FALSE;
-	}
-	else if ( m_pPlayer->pev->fov != 15 )
-	{
-		m_pPlayer->pev->fov = m_pPlayer->m_iFOV = 15;
-		m_fInZoom = TRUE;
-	}
-
-	EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/sniper_zoom.wav", 1.0, ATTN_NORM, 0, PITCH_NORM);
+    if (!m_fInZoom) {
+        UTIL_ClientPrintAll(HUD_PRINTCENTER, "Use two handed mode and lift dominant\ncontroller to your eye to enable scope.\nUse off-hand thumbstick to zoom in/out");
+    }
 
 	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.5;
 }
+
+void CSniperrifle::ItemPostFrame( void )
+{
+    CBasePlayerWeapon::ItemPostFrame();
+
+    if (m_TargetScopeFOV != 0)
+    {
+        if (m_pPlayer->m_iFOV > m_TargetScopeFOV)
+        {
+            m_pPlayer->m_iFOV -= 2;
+            m_pPlayer->pev->fov -= 2;
+        }
+        else if (m_pPlayer->m_iFOV < m_TargetScopeFOV)
+        {
+            m_pPlayer->m_iFOV += 2;
+            m_pPlayer->pev->fov += 2;
+        }
+    }
+}
+
+void CSniperrifle::ItemImpulseCommand(int command)
+{
+    switch (command)
+    {
+        case 104:
+            ScopeZoomIn();
+            break;
+        case 105:
+            ScopeZoomOut();
+            break;
+    }
+}
+
+void CSniperrifle::ToggleScope( BOOL engage )
+{
+	if ( !engage && m_fInZoom )
+	{
+        m_TargetScopeFOV = m_pPlayer->m_iFOV = m_pPlayer->pev->fov = 0; // 0 means reset to default fov
+		m_fInZoom = FALSE;
+	}
+	else if ( engage && !m_fInZoom && !m_fInReload )
+	{
+ 		m_TargetScopeFOV = 30;
+        m_pPlayer->m_iFOV = m_pPlayer->pev->fov = 90;
+		m_fInZoom = TRUE;
+
+		EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/sniper_zoom.wav", 1.0, ATTN_NORM, 0, PITCH_NORM);
+	}
+}
+
+void CSniperrifle::ScopeZoomIn()
+{
+    if (!m_fInZoom)
+        return;
+
+    if (m_TargetScopeFOV > 10)
+    {
+        m_TargetScopeFOV -= 20;
+		EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/sniper_zoom.wav", 1.0, ATTN_NORM, 0, PITCH_NORM);
+    }
+}
+
+void CSniperrifle::ScopeZoomOut()
+{
+	if (!m_fInZoom)
+		return;
+
+	if (m_TargetScopeFOV < 70)
+	{
+		m_TargetScopeFOV += 20;
+		EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/sniper_zoom.wav", 1.0, ATTN_NORM, 0, PITCH_NORM);
+	}
+}
+
+void CSniperrifle::MakeLaser( void )
+{
+    if (m_fInZoom)
+    {
+        KillLaser();
+    }
+    else
+    {
+        CBasePlayerWeapon::MakeLaser();
+    }
+}
+
 void CSniperrifle::PrimaryAttack()
 {
 	if ( m_fInSpecialReload )
@@ -145,7 +222,7 @@ void CSniperrifle::PrimaryAttack()
 	}
 
 	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3)
+	if (m_pPlayer->IsWeaponUnderWater())
 	{
 		PlayEmptySound( );
 		m_flNextPrimaryAttack = 0.15;
@@ -172,6 +249,8 @@ void CSniperrifle::PrimaryAttack()
 	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
 
 	Vector vecSrc	 = m_pPlayer->GetGunPosition( );
+	UTIL_MakeVectors(m_pPlayer->GetWeaponAngles());
+
 	Vector vecAiming;
 	vecAiming = gpGlobals->v_forward;
 
@@ -196,9 +275,9 @@ void CSniperrifle::Reload( void )
 
 	int iResult;
 
-	if ( m_pPlayer->pev->fov != 0 )
+	if ( m_fInZoom )
 	{
-		SecondaryAttack();
+		ToggleScope( false );
 	}
 
 	if (m_iClip == 0)

@@ -124,7 +124,7 @@ void CM249::Holster(int skiplocal)
 void CM249::PrimaryAttack()
 {
 	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3)
+	if (m_pPlayer->IsWeaponUnderWater())
 	{
 		PlayEmptySound();
 		m_flNextPrimaryAttack = 0.15;
@@ -156,7 +156,7 @@ void CM249::PrimaryAttack()
 	Vector vecDir;
 
 #ifdef CLIENT_DLL
-	if (!bIsMultiplayer())
+	if (bIsMultiplayer())
 #else
 	if (!g_pGameRules->IsMultiplayer())
 #endif

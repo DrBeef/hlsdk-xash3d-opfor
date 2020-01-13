@@ -291,6 +291,12 @@ V_CalcRefdef
 
 ==================
 */
+
+bool isScopeEngaged()
+{
+	return gHUD.m_iFOV < 104;
+}
+
 void V_CalcNormalRefdef( struct ref_params_s *pparams )
 {
 	cl_entity_t *ent, *view;
@@ -456,7 +462,8 @@ void V_CalcNormalRefdef( struct ref_params_s *pparams )
 	}
 
 #ifdef VR
-	if (vr_weapon_recoil->value) {
+	if (vr_weapon_recoil->value ||
+			isScopeEngaged()) { // Allow recoil for the sniper rifle with scope engaged
 #endif
 	// Add in the punchangle, if any
 	VectorAdd( pparams->viewangles, pparams->punchangle, pparams->viewangles );

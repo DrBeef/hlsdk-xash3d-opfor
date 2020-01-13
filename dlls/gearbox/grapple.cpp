@@ -169,7 +169,7 @@ void CBarnacleGrapple::PrimaryAttack( void )
 		return;
 	}
 
-	UTIL_MakeVectors( m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle );
+	UTIL_MakeVectors( m_pPlayer->GetWeaponAngles() );
 #ifndef CLIENT_DLL
 	if( m_pTip )
 	{
@@ -487,17 +487,14 @@ void CBarnacleGrapple::CreateEffect( void )
 	m_pTip = GetClassPtr((CBarnacleGrappleTip *)NULL);
 	m_pTip->Spawn();
 
-	UTIL_MakeVectors( m_pPlayer->pev->v_angle );
+	UTIL_MakeVectors( m_pPlayer->GetWeaponAngles() );
 
 	Vector vecOrigin =
-		m_pPlayer->GetGunPosition() +
-		gpGlobals->v_forward * 16.0 +
-		gpGlobals->v_right * 8.0 +
-		gpGlobals->v_up * -8.0;
+		m_pPlayer->GetGunPosition();
 
-	Vector vecAngles = m_pPlayer->pev->v_angle;
+	Vector vecAngles = m_pPlayer->GetWeaponAngles();
 
-	vecAngles.x = -vecAngles.x;
+	//vecAngles.x = -vecAngles.x;
 
 	m_pTip->SetPosition( vecOrigin, vecAngles, m_pPlayer );
 

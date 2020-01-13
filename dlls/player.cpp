@@ -1924,7 +1924,8 @@ void CBasePlayer::PreThink( void )
 	ItemPreFrame();
 	WaterMove();
 
-	if( g_pGameRules && g_pGameRules->FAllowFlashlight() )
+	const bool isScopeEngaged = (pev->fov != 104 && pev->fov != 0);
+	if( g_pGameRules && g_pGameRules->FAllowFlashlight() && !isScopeEngaged)
 		m_iHideHUD &= ~HIDEHUD_FLASHLIGHT;
 	else
 		m_iHideHUD |= HIDEHUD_FLASHLIGHT;
@@ -3691,6 +3692,18 @@ void CBasePlayer::ImpulseCommands()
 		else 
 		{
 			FlashlightTurnOn();
+		}
+		break;
+	case 104:
+		if (m_pActiveItem != nullptr)
+		{
+			m_pActiveItem->ItemImpulseCommand(104);
+		}
+		break;
+	case 105:
+		if (m_pActiveItem != nullptr)
+		{
+			m_pActiveItem->ItemImpulseCommand(105);
 		}
 		break;
 	case 201:

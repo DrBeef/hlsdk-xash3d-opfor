@@ -97,6 +97,7 @@ void CShock::Shoot(entvars_t *pevOwner, const Vector angles, const Vector vecSta
 	pShock->pev->velocity = vecVelocity;
 	pShock->pev->owner = ENT(pevOwner);
 	pShock->pev->angles = angles;
+	//pShock->pev->angles.x = -pShock->pev->angles.x;
 
 	pShock->pev->nextthink = gpGlobals->time;
 }

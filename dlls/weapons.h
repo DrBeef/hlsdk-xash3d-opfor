@@ -291,6 +291,8 @@ public:
 	virtual void ItemPreFrame( void )	{ return; }		// called each frame by the player PreThink
 	virtual void ItemPostFrame( void ) { return; }		// called each frame by the player PostThink
 
+	virtual void ItemImpulseCommand(int) {return;} // special command handler
+
 	virtual void Drop( void );
 	virtual void Kill( void );
 	virtual void AttachToPlayer ( CBasePlayer *pPlayer );
@@ -368,6 +370,9 @@ public:
 	// called by CBasePlayerWeapons ItemPostFrame()
 	virtual void PrimaryAttack( void ) { return; }				// do "+ATTACK"
 	virtual void SecondaryAttack( void ) { return; }			// do "+ATTACK2"
+	virtual void ToggleScope( BOOL engage ) { return; }			// do "+alt1"
+	virtual void ScopeZoomIn( ) { return; }
+	virtual void ScopeZoomOut( ) { return; }
 	virtual void Reload( void );						// do "+RELOAD"
 	virtual void WeaponTick() {}				// Always called at beginning of ItemPostFrame. - Solokiller
 	virtual void WeaponIdle( void ) { return; }					// called when no buttons pressed
@@ -376,6 +381,7 @@ public:
 	virtual BOOL ShouldWeaponIdle( void ) {return FALSE; };
 	virtual void Holster( int skiplocal = 0 );
 	virtual BOOL UseDecrement( void ) { return FALSE; };
+    virtual void ItemImpulseCommand(int) {return;} // special command handler
 
 	virtual void MakeLaser( void );
 	virtual void KillLaser( void );
@@ -401,6 +407,7 @@ public:
 	int		m_iClientClip;										// the last version of m_iClip sent to hud dll
 	int		m_iClientWeaponState;								// the last version of the weapon state sent to hud dll (is current weapon, is on target)
 	int		m_fInReload;										// Are we in the middle of a reload;
+    BOOL    m_fInZoom;// don't save this.
 
 	int		m_iDefaultAmmo;// how much ammo you get when you pick up this weapon as placed by a level designer.
 
@@ -1439,6 +1446,9 @@ public:
 	static	TYPEDESCRIPTION m_SaveData[];
 #endif
 
+	virtual void ItemPostFrame( void );	// called each frame by the player PostThink
+    virtual void ItemImpulseCommand(int);
+
 	void Spawn(void);
 	void Precache(void);
 	int iItemSlot(void) { return 6; }
@@ -1446,14 +1456,18 @@ public:
 	int AddToPlayer(CBasePlayer *pPlayer);
 	void PrimaryAttack(void);
 	void SecondaryAttack(void);
+	void ToggleScope( BOOL engage );
+    void ScopeZoomIn( );
+    void ScopeZoomOut( );
 	BOOL Deploy(void);
 	void Holster(int skiplocal = 0);
 	void Reload(void);
 	void WeaponIdle(void);
 
-	BOOL ShouldWeaponIdle(void) { return TRUE; }
+    void MakeLaser( void );
 
-	BOOL m_fInZoom;// don't save this. 
+
+    BOOL ShouldWeaponIdle(void) { return TRUE; }
 
 	virtual BOOL UseDecrement(void)
 	{
@@ -1466,6 +1480,7 @@ public:
 
 private:
 	unsigned short m_usSniper;
+    int            m_TargetScopeFOV = 0;
 };
 
 class CSporelauncher : public CShotgun
