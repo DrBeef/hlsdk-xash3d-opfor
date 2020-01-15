@@ -116,8 +116,10 @@ void CSniperrifle::SecondaryAttack()
     if (!m_fInZoom) {
         UTIL_ClientPrintAll(HUD_PRINTCENTER, "Use two handed mode and lift dominant\ncontroller to your eye to enable scope.\nUse off-hand thumbstick to zoom in/out");
     }
-
-	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.5;
+    else
+    {
+        PrimaryAttack();
+    }
 }
 
 void CSniperrifle::ItemPostFrame( void )

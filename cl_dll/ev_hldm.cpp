@@ -2551,7 +2551,15 @@ void EV_FireSniper( event_args_t *args )
 	// Play fire sound.
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/sniper_fire.wav", 1.0f, ATTN_NORM, 0, PITCH_NORM );
 
-	EV_GetGunPosition( args, vecSrc, origin );
+    if (gMobileEngfuncs) {
+        int leftHanded = (int) CVAR_GET_FLOAT("hand");
+        int stabilised = (int) CVAR_GET_FLOAT("vr_weapon_stabilised");
+        gMobileEngfuncs->pfnVibrate(200, 1-leftHanded, 0.9);
+        if (stabilised)
+            gMobileEngfuncs->pfnVibrate(200, leftHanded, 0.8);
+    }
+
+    EV_GetGunPosition( args, vecSrc, origin );
 
 	VectorCopy( forward, vecAiming );
 
