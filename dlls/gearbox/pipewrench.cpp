@@ -98,7 +98,7 @@ int CPipeWrench::GetItemInfo(ItemInfo *p)
 
 BOOL CPipeWrench::Deploy( )
 {
-	return DefaultDeploy( "models/v_pipewrench.mdl", "models/p_pipewrench.mdl", PIPEWRENCH_DRAW, "pipewrench" );
+	return DefaultDeploy( "models/v_pipe_wrench.mdl", "models/p_pipe_wrench.mdl", PIPEWRENCH_DRAW, "pipewrench" );
 }
 
 void CPipeWrench::Holster( int skiplocal /* = 0 */ )
@@ -253,10 +253,10 @@ void CPipeWrench::CheckSmack(float speed)
 				switch (RANDOM_LONG(0, 1))
 				{
 				case 0:
-					EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/pwrench_big_hitbod1.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+					EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/pwrench_hit1.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
 					break;
 				case 1:
-					EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/pwrench_big_hitbod2.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+					EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/pwrench_hit2.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
 					break;
 				}
 			}
