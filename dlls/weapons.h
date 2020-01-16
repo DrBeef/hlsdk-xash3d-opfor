@@ -1374,17 +1374,14 @@ public:
 	void Spawn(void);
 	void Precache(void);
 	int iItemSlot(void) { return 1; }
-	void EXPORT SwingAgain(void);
-	void EXPORT Smack(void);
 	int GetItemInfo(ItemInfo *p);
 
-	void PrimaryAttack(void);
-	void SecondaryAttack(void);
-	int Swing(int fFirst);
+	void ItemPostFrame();
+	void MakeLaser( void );
+    void CheckSmack(float speed);
+
 	BOOL Deploy(void);
-	void WeaponIdle(void);
 	void Holster(int skiplocal = 0);
-	void BigSwing(void);
 
 	int m_iSwing;
 	TraceResult m_trHit;
@@ -1399,6 +1396,18 @@ public:
 		return FALSE;
 #endif
 	}
+
+#ifndef CLIENT_DLL
+    // Stuff for VR swinging
+    bool playedWooshSound = false;
+    float lastWooshSoundTime = 0;
+    float hitCount = 0;
+    bool HasNotHitThisEntityThisSwing(CBaseEntity *pEntity);
+    void RememberHasHitThisEntityThisSwing(CBaseEntity *pEntity);
+    void ClearEntitiesHitThisSwing();
+    EHANDLE hitEntities[128];	// TODO: Use std::unordered_set
+#endif
+
 private:
 	unsigned short m_usPWrench;
 };
