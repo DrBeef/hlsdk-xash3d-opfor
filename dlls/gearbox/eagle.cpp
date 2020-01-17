@@ -231,7 +231,7 @@ void CEagle::UpdateSpot( void )
 			EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/desert_eagle_sight.wav", 1.0, ATTN_NORM, 0, PITCH_NORM);
 		}
 
-		UTIL_MakeVectors( m_pPlayer->pev->v_angle );
+		UTIL_MakeVectors(m_pPlayer->GetWeaponAngles());
 		Vector vecSrc = m_pPlayer->GetGunPosition( );;
 		Vector vecAiming = gpGlobals->v_forward;
 

@@ -1343,7 +1343,10 @@ public:
 	int GetItemInfo(ItemInfo *p);
 
 	void PrimaryAttack(void);
-	void SecondaryAttack(void);
+    void PreThrow();
+    void Throw(Vector throwVelocity);
+
+    void SecondaryAttack(void);
 	BOOL Deploy(void);
 	void Holster(int skiplocal = 0);
 	void WeaponIdle(void);
@@ -1356,9 +1359,13 @@ public:
 #else
 		return FALSE;
 #endif
+
 	}
 
 private:
+    Vector m_WeaponPositions[4];
+    float m_WeaponPositionTimestamps[4];
+
 	unsigned short m_usPenguinFire;
 };
 

@@ -104,7 +104,7 @@ void CKnife::Holster(int skiplocal /* = 0 */)
 	SendWeaponAnim(KNIFE_HOLSTER);
 }
 
-#define KNIFE_MIN_SWING_SPEED 40
+#define KNIFE_MIN_SWING_SPEED 30
 #define KNIFE_LENGTH 12
 
 void CKnife::ItemPostFrame()
@@ -191,8 +191,10 @@ void CKnife::CheckSmack(float speed)
 			hitCount++;
 
 			ClearMultiDamage();
-			// hit damage is greater when swing is faster + weaker for every additional hit
-			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgKnife * (speed / KNIFE_MIN_SWING_SPEED) * (1.f / hitCount), gpGlobals->v_up, &tr, DMG_CLUB);
+
+			//It's a knife, nasty sharp edges, it doesn't have to be swung very hard to inflict full damage but it shouldn't inflight more than
+			//its full damage
+			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgKnife * (1.f / hitCount), gpGlobals->v_up, &tr, DMG_CLUB);
 			ApplyMultiDamage( m_pPlayer->pev, m_pPlayer->pev );
 
 			if( pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE )
