@@ -134,12 +134,13 @@ void CSporelauncher::PrimaryAttack()
 
 	// m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
-	UTIL_MakeVectors( m_pPlayer->GetWeaponAngles() );
+    Vector angles = m_pPlayer->GetWeaponAngles();
+    angles.x = -angles.x;
+    UTIL_MakeVectors( angles );
 	Vector vecSrc = m_pPlayer->GetGunPosition( );
 
 #ifndef CLIENT_DLL
-		UTIL_MakeVectors( m_pPlayer->pev->v_angle );
-		CSporeGrenade::ShootContact( m_pPlayer->pev, vecSrc, gpGlobals->v_forward * 1500 );
+	CSporeGrenade::ShootContact( m_pPlayer->pev, vecSrc, gpGlobals->v_forward * 1500 );
 #endif
 
 	PLAYBACK_EVENT_FULL(
@@ -198,11 +199,12 @@ void CSporelauncher::SecondaryAttack(void)
 
 	// player "shoot" animation
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
-	UTIL_MakeVectors( m_pPlayer->pev->v_angle );
-	Vector vecSrc = m_pPlayer->GetGunPosition( ) + gpGlobals->v_forward * 16 + gpGlobals->v_right * 8 + gpGlobals->v_up * -8;
+    Vector angles = m_pPlayer->GetWeaponAngles();
+    angles.x = -angles.x;
+    UTIL_MakeVectors( angles );
+	Vector vecSrc = m_pPlayer->GetGunPosition( );
 
 #ifndef CLIENT_DLL
-		UTIL_MakeVectors( m_pPlayer->pev->v_angle );
 		CSporeGrenade::ShootTimed(m_pPlayer->pev, vecSrc, gpGlobals->v_forward * 1000, false);
 #endif
 
