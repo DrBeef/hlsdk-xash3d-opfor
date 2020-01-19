@@ -540,11 +540,11 @@ void CDisplacer::Displace( void )
 	Vector vecSrc;
 	UseAmmo(DISPLACER_PRIMARY_USAGE);
 
-	UTIL_MakeVectors(m_pPlayer->GetWeaponAngles());
+	UTIL_MakeVectors(m_pPlayer->GetWeaponViewAngles());
 
 	vecSrc = m_pPlayer->GetGunPosition();
 
-	CDisplacerBall::Shoot( m_pPlayer->pev, vecSrc, gpGlobals->v_forward * 500, m_pPlayer->GetWeaponAngles() );
+	CDisplacerBall::Shoot( m_pPlayer->pev, vecSrc, gpGlobals->v_forward * 500, m_pPlayer->GetWeaponViewAngles() );
 
 	SetThink( NULL );
 #endif

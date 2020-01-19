@@ -154,8 +154,7 @@ void CShockrifle::PrimaryAttack()
 	CreateChargeEffect();
 
 #ifndef CLIENT_DLL
-	Vector angles = m_pPlayer->GetWeaponAngles();
-	angles.x = -angles.x;
+	Vector angles = m_pPlayer->GetWeaponViewAngles();
 	UTIL_MakeVectors( angles );
 	CShock::Shoot(m_pPlayer->pev, angles, m_pPlayer->GetGunPosition(), gpGlobals->v_forward * 2000);
 

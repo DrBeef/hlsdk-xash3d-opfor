@@ -251,7 +251,7 @@ void CSniperrifle::PrimaryAttack()
 	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
 
 	Vector vecSrc	 = m_pPlayer->GetGunPosition( );
-	UTIL_MakeVectors(m_pPlayer->GetWeaponAngles());
+	UTIL_MakeVectors(m_pPlayer->GetWeaponViewAngles());
 
 	Vector vecAiming;
 	vecAiming = gpGlobals->v_forward;

@@ -134,8 +134,7 @@ void CSporelauncher::PrimaryAttack()
 
 	// m_pPlayer->pev->effects = (int)(m_pPlayer->pev->effects) | EF_MUZZLEFLASH;
 	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
-    Vector angles = m_pPlayer->GetWeaponAngles();
-    angles.x = -angles.x;
+    Vector angles = m_pPlayer->GetWeaponViewAngles();
     UTIL_MakeVectors( angles );
 	Vector vecSrc = m_pPlayer->GetGunPosition( );
 
