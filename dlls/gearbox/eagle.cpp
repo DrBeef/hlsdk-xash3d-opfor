@@ -172,7 +172,8 @@ void CEagle::PrimaryAttack()
 	}
 	else
 	{
-		flSpread = 0.1;
+		//Let player make their own bad shots
+		//flSpread = 0.1;
 		vecDir = m_pPlayer->FireBulletsPlayer( 1, vecSrc, vecAiming, Vector(flSpread, flSpread, flSpread), 8192, BULLET_PLAYER_EAGLE, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 		m_flNextPrimaryAttack = UTIL_WeaponTimeBase()+ 0.22;
 	}
