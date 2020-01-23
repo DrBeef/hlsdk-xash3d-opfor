@@ -319,9 +319,17 @@ void CBarnacleGrapple::PrimaryAttack( void )
 	}
 
 #ifndef CLIENT_DLL
+
+    if (m_pBeam)
+    {
+	    //Update start position
+        m_pBeam->SetStartPos( m_pPlayer->GetGunPosition() );
+        m_pBeam->RelinkBeam();
+    }
+
 	if( m_pTip->GetGrappleType() != GRAPPLE_FIXED && m_pTip->IsStuck() )
 	{
-		UTIL_MakeVectors( m_pPlayer->pev->v_angle );
+		UTIL_MakeVectors( m_pPlayer->GetWeaponAngles() );
 
 		Vector vecSrc = m_pPlayer->GetGunPosition();
 
@@ -502,7 +510,7 @@ void CBarnacleGrapple::CreateEffect( void )
 	{
 		m_pBeam = CBeam::BeamCreate( "sprites/tongue.spr", 16 );
 
-		m_pBeam->EntsInit( m_pTip->entindex(), m_pPlayer->entindex() );
+		m_pBeam->PointEntInit( vecOrigin, m_pTip->entindex() );
 
 		m_pBeam->SetFlags( BEAM_FSOLID );
 
@@ -512,6 +520,7 @@ void CBarnacleGrapple::CreateEffect( void )
 
 		m_pBeam->pev->spawnflags |= SF_BEAM_TEMPORARY;
 	}
+
 #endif
 }
 
@@ -520,6 +529,7 @@ void CBarnacleGrapple::UpdateEffect( void )
 #ifndef CLIENT_DLL
 	if( !m_pBeam || !m_pTip )
 		CreateEffect();
+
 #endif
 }
 
