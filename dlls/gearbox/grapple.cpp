@@ -310,6 +310,11 @@ void CBarnacleGrapple::PrimaryAttack( void )
 #endif
 		EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_WEAPON, "weapons/bgrapple_fire.wav", 0.98, ATTN_NORM, 0, 125 );
 		m_fireState = CHARGE;
+
+		//Start vibration
+		char buffer[256];
+		sprintf(buffer, "vibrate -1 %i 0.5\n", 1-(int)CVAR_GET_FLOAT("hand"));
+		SERVER_COMMAND(buffer);
 	}
 
 	if( !m_pTip )
@@ -413,6 +418,11 @@ void CBarnacleGrapple::PrimaryAttack( void )
 							case 2: pszSample = "barnacle/bcl_chew3.wav"; break;
 							}
 							EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_VOICE, pszSample, VOL_NORM, ATTN_NORM, 0, 125 );
+
+							//continue vibration more intense
+							char buffer[256];
+							sprintf(buffer, "vibrate -1 %i 1.0\n", 1-(int)CVAR_GET_FLOAT("hand"));
+							SERVER_COMMAND(buffer);
 						}
 					}
 				}
@@ -468,6 +478,11 @@ void CBarnacleGrapple::EndAttack( void )
 	SendWeaponAnim( BGRAPPLE_FIRERELEASE );
 
 	EMIT_SOUND(ENT(pev), CHAN_WEAPON, "weapons/bgrapple_release.wav", 1, ATTN_NORM);
+
+	//Stop vibration
+	char buffer[256];
+	sprintf(buffer, "vibrate 0.0 %i 0.0\n", 1-(int)CVAR_GET_FLOAT("hand"));
+	SERVER_COMMAND(buffer);
 
 	EMIT_SOUND_DYN( ENT( m_pPlayer->pev ), CHAN_WEAPON, "weapons/bgrapple_pull.wav", 0.0, ATTN_NONE, SND_STOP, 100 );
 

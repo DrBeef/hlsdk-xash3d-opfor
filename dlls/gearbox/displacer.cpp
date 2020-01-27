@@ -486,6 +486,15 @@ void CDisplacer::WeaponIdle(void)
 //=========================================================
 void CDisplacer::ClearSpin( void )
 {
+    //Stop vibration
+    char buffer[256];
+    sprintf(buffer, "vibrate 0.0 %i 0.0\n", 1-(int)CVAR_GET_FLOAT("hand"));
+    SERVER_COMMAND(buffer);
+    if ((int)CVAR_GET_FLOAT("vr_weapon_stabilised") == 1)
+    {
+        sprintf(buffer, "vibrate 0.0 %i 0.0\n", (int)CVAR_GET_FLOAT("hand"));
+        SERVER_COMMAND(buffer);
+    }
 
 	switch (m_iFireMode)
 	{
@@ -519,6 +528,16 @@ void CDisplacer::SpinUp( void )
 	}
 	pev->nextthink = gpGlobals->time + 0.9;
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.3;
+
+	//Start vibration - low
+	char buffer[256];
+	sprintf(buffer, "vibrate -1 %i 0.3\n", 1-(int)CVAR_GET_FLOAT("hand"));
+	SERVER_COMMAND(buffer);
+	if ((int)CVAR_GET_FLOAT("vr_weapon_stabilised") == 1)
+	{
+		sprintf(buffer, "vibrate -1 %i 0.2\n", (int)CVAR_GET_FLOAT("hand"));
+		SERVER_COMMAND(buffer);
+	}
 }
 
 //=========================================================
@@ -548,6 +567,16 @@ void CDisplacer::Displace( void )
 
 	SetThink( NULL );
 #endif
+
+	//Big vibration
+	char buffer[256];
+	sprintf(buffer, "vibrate 120 %i 1.0\n", 1-(int)CVAR_GET_FLOAT("hand"));
+	SERVER_COMMAND(buffer);
+	if ((int)CVAR_GET_FLOAT("vr_weapon_stabilised") == 1)
+	{
+		sprintf(buffer, "vibrate 120 %i 0.8\n", (int)CVAR_GET_FLOAT("hand"));
+		SERVER_COMMAND(buffer);
+	}
 }
 
 //=========================================================
@@ -613,12 +642,29 @@ void CDisplacer::Teleport( void )
 			else
 				m_pPlayer->pev->gravity = 1.0;
 		}
+
+		//Big vibration - both controllers
+		char buffer[256];
+		sprintf(buffer, "vibrate 500 1 1.0\n");
+		SERVER_COMMAND(buffer);
+		sprintf(buffer, "vibrate 500 0 1.0\n");
+		SERVER_COMMAND(buffer);
 	}
 	else
 	{
 		EMIT_SOUND( edict(), CHAN_BODY, "buttons/button11.wav", 1, ATTN_NORM );
 		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 3.0;
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.9;
+
+		//Stop vibration
+		char buffer[256];
+		sprintf(buffer, "vibrate 0.0 %i 0.0\n", 1-(int)CVAR_GET_FLOAT("hand"));
+		SERVER_COMMAND(buffer);
+		if ((int)CVAR_GET_FLOAT("vr_weapon_stabilised") == 1)
+		{
+			sprintf(buffer, "vibrate 0.0 %i 0.0\n", (int)CVAR_GET_FLOAT("hand"));
+			SERVER_COMMAND(buffer);
+		}
 	}
 
 	SetThink( NULL );

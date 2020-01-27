@@ -472,7 +472,9 @@ void EV_HLDM_FireBullets( int idx, float *forward, float *right, float *up, int 
                 case BULLET_PLAYER_9MM:
                     gMobileEngfuncs->pfnVibrate(120, 1 - leftHanded, 0.4);
                     break;
-                case BULLET_PLAYER_MP5:
+				case BULLET_PLAYER_MP5:
+				case BULLET_PLAYER_556:
+				case BULLET_PLAYER_762:
                     gMobileEngfuncs->pfnVibrate(60, 1 - leftHanded, 0.75);
                     if (stabilised != 0.0f)
                         gMobileEngfuncs->pfnVibrate(60, leftHanded, 0.5);
@@ -483,6 +485,7 @@ void EV_HLDM_FireBullets( int idx, float *forward, float *right, float *up, int 
                         gMobileEngfuncs->pfnVibrate(120, leftHanded, 0.75);
                     break;
                 case BULLET_PLAYER_357:
+				case BULLET_PLAYER_EAGLE:
                     gMobileEngfuncs->pfnVibrate(120, 1 - leftHanded, 0.8);
                     break;
             }
@@ -2019,7 +2022,15 @@ void EV_Displacer( event_args_t *args )
 	{
 		gEngfuncs.pEventAPI->EV_WeaponAnimation( DISPLACER_FIRE, 0 );
 		V_PunchAxis( 0, -2.0 );
-	}	
+	}
+
+	if (gMobileEngfuncs) {
+		int leftHanded = (int) CVAR_GET_FLOAT("hand");
+		int stabilised = (int) CVAR_GET_FLOAT("vr_weapon_stabilised");
+		gMobileEngfuncs->pfnVibrate(100, 1-leftHanded, 1.0);
+		if (stabilised)
+			gMobileEngfuncs->pfnVibrate(100, leftHanded, 1.0);
+	}
 
 	gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/displacer_fire.wav", 1, ATTN_NORM, 0, PITCH_NORM );
 }
@@ -2486,6 +2497,14 @@ void EV_ShockFire( event_args_t *args )
 			gEngfuncs.pEventAPI->EV_PopPMStates();
 		}
 	}
+
+	if (gMobileEngfuncs) {
+		int leftHanded = (int) CVAR_GET_FLOAT("hand");
+		int stabilised = (int) CVAR_GET_FLOAT("vr_weapon_stabilised");
+		gMobileEngfuncs->pfnVibrate(100, 1-leftHanded, 0.7);
+		if (stabilised)
+			gMobileEngfuncs->pfnVibrate(100, leftHanded, 0.6);
+	}
 }
 //======================
 //	   SHOCKRIFLE END
@@ -2618,6 +2637,14 @@ void EV_SporeFire( event_args_t *args )
 		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/splauncher_fire.wav", 1, ATTN_NORM, 0, 100 );
 	else
 		gEngfuncs.pEventAPI->EV_PlaySound( idx, origin, CHAN_WEAPON, "weapons/splauncher_altfire.wav", 1, ATTN_NORM, 0, 100 );
+
+	if (gMobileEngfuncs) {
+		int leftHanded = (int) CVAR_GET_FLOAT("hand");
+		int stabilised = (int) CVAR_GET_FLOAT("vr_weapon_stabilised");
+		gMobileEngfuncs->pfnVibrate(100, 1-leftHanded, 0.6);
+		if (stabilised)
+			gMobileEngfuncs->pfnVibrate(100, leftHanded, 0.5);
+	}
 
 	Vector	vecSpitOffset;
 	Vector	vecSpitDir;
