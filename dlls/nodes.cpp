@@ -1531,7 +1531,7 @@ void CTestHull::Spawn( entvars_t *pevMasterNode )
 //=========================================================
 void CTestHull::DropDelay( void )
 {
-	UTIL_CenterPrintAll( "Node Graph out of Date. Rebuilding..." );
+	//UTIL_CenterPrintAll( "Node Graph out of Date. Rebuilding..." );
 
 	UTIL_SetOrigin( VARS( pev ), WorldGraph.m_pNodes[0].m_vecOrigin );
 
