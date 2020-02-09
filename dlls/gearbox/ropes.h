@@ -96,10 +96,16 @@ public:
 	void TraceModels( CRopeSegment** ppPrimarySegs, CRopeSegment** ppHiddenSegs );
 
 	/**
-	*	Traces model positions and angles, makes visible segments visible and hidden segments hidden.
+	*	Traces model positions and angles
 	*/
 	void SetRopeSegments( const int uiNumSegments,
 						  CRopeSegment** ppPrimarySegs, CRopeSegment** ppHiddenSegs );
+
+    /**
+    *	Makes visible segments visible and hidden segments hidden.
+    */
+    void InitSegments( const int uiNumSegments,
+                              CRopeSegment** ppPrimarySegs, CRopeSegment** ppHiddenSegs );
 
 	/**
 	*	Moves the attached object up.

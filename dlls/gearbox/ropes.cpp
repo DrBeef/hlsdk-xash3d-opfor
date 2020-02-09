@@ -324,6 +324,8 @@ void CRope::StartThink()
 
 	InitializeRopeSim();
 
+    InitSegments(m_iSegments, seg, altseg);
+
 	SetThink(&CRope::RopeThink);
 	SetNextThink( gpGlobals->time + 0.01 );
 }
@@ -813,6 +815,31 @@ void CRope::TraceModels( CRopeSegment** ppPrimarySegs, CRopeSegment** ppHiddenSe
 	}
 }
 
+void CRope::InitSegments( const int uiNumSegments,
+                             CRopeSegment** ppPrimarySegs, CRopeSegment** ppHiddenSegs )
+{
+    if( uiNumSegments > 0 )
+    {
+       ppPrimarySegs[ 0 ]->SetSolidType( SOLID_TRIGGER );
+        ppPrimarySegs[ 0 ]->SetEffects( 0 );
+
+        ppHiddenSegs[ 0 ]->SetSolidType( SOLID_NOT );
+        ppHiddenSegs[ 0 ]->SetEffects( EF_NODRAW );
+
+        for( int uiIndex = 1; uiIndex < uiNumSegments; ++uiIndex )
+        {
+            CRopeSegment* pPrim = ppPrimarySegs[ uiIndex ];
+            CRopeSegment* pHidden = ppHiddenSegs[ uiIndex ];
+
+            pPrim->SetSolidType( SOLID_TRIGGER );
+            pPrim->SetEffects( 0 );
+
+            pHidden->SetSolidType( SOLID_NOT );
+            pHidden->SetEffects( EF_NODRAW );
+        }
+    }
+}
+
 void CRope::SetRopeSegments( const int uiNumSegments,
 							 CRopeSegment** ppPrimarySegs, CRopeSegment** ppHiddenSegs )
 {
@@ -820,28 +847,12 @@ void CRope::SetRopeSegments( const int uiNumSegments,
 	{
 		TraceModels( ppPrimarySegs, ppHiddenSegs );
 
-		ppPrimarySegs[ 0 ]->SetSolidType( SOLID_TRIGGER );
-		ppPrimarySegs[ 0 ]->SetEffects( 0 );
-
-		ppHiddenSegs[ 0 ]->SetSolidType( SOLID_NOT );
-		ppHiddenSegs[ 0 ]->SetEffects( EF_NODRAW );
-
 		for( int uiIndex = 1; uiIndex < uiNumSegments; ++uiIndex )
 		{
 			CRopeSegment* pPrim = ppPrimarySegs[ uiIndex ];
 			CRopeSegment* pHidden = ppHiddenSegs[ uiIndex ];
 
-			pPrim->SetSolidType( SOLID_TRIGGER );
-			pPrim->SetEffects( 0 );
-
-			pHidden->SetSolidType( SOLID_NOT );
-			pHidden->SetEffects( EF_NODRAW );
-
 			Vector vecOrigin = pPrim->pev->origin;
-
-			//vecOrigin.x += 10.0;
-			//vecOrigin.y += 10.0;
-
 			pHidden->SetAbsOrigin( vecOrigin );
 		}
 	}
