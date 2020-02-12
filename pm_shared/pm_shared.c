@@ -1393,17 +1393,12 @@ void PM_WaterMove( void )
 
 	float speed, newspeed, addspeed, accelspeed;
 
-	//Use controller orientation
-	vec3_t forward, right, up;
-	AngleVectors( pmove->angles2, forward, right, up );
 
 //
 // user intentions
 //
 	for( i = 0; i < 3; i++ )
-		wishvel[i] = forward[i] * pmove->cmd.forwardmove + right[i] * pmove->cmd.sidemove
-				//Use forward move as an upwards movement if controller pointed up!
-				+ up[i] * pmove->cmd.forwardmove;
+		wishvel[i] = pmove->forward[i] * pmove->cmd.forwardmove + pmove->right[i] * pmove->cmd.sidemove;
 
 	// Sinking after no other movement occurs
 	if( !pmove->cmd.forwardmove && !pmove->cmd.sidemove && !pmove->cmd.upmove )
