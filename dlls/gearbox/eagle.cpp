@@ -87,6 +87,8 @@ BOOL CEagle::Deploy( )
 
 void CEagle::Holster( int skiplocal /* = 0 */ )
 {
+	KillLaser();
+
 	m_fInReload = FALSE;// cancel any reload in progress.
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
 	SendWeaponAnim( DEAGLE_HOLSTER );

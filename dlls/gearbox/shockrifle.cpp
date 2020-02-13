@@ -124,6 +124,8 @@ BOOL CShockrifle::Deploy()
 
 void CShockrifle::Holster(int skiplocal /* = 0 */)
 {
+	KillLaser();
+
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
 	SendWeaponAnim(SHOCK_HOLSTER);
 

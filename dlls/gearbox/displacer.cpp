@@ -403,6 +403,8 @@ BOOL CDisplacer::Deploy()
 //=========================================================
 void CDisplacer::Holster(int skiplocal /* = 0 */)
 {
+	KillLaser();
+
 	m_fInReload = FALSE;// cancel any reload in progress.
 
 	ClearBeams();

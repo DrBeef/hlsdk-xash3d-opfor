@@ -771,7 +771,6 @@ void ServerActivate( edict_t *pEdictList, int edictCount, int clientMax )
 	LinkUserMessages();
 }
 
-static bool changedLevel = false;
 /*
 ================
 PlayerPreThink
@@ -784,13 +783,6 @@ void PlayerPreThink( edict_t *pEntity )
 	//ALERT( at_console, "PreThink( %g, frametime %g )\n", gpGlobals->time, gpGlobals->frametime );
 
 	CBasePlayer *pPlayer = (CBasePlayer *)GET_PRIVATE( pEntity );
-
-	//Such a hack!!
-	if (changedLevel)
-	{
-		changedLevel = false;
-		pPlayer->m_ChangedLevel = true;
-	}
 
 	if( pPlayer )
 		pPlayer->PreThink();
@@ -824,8 +816,6 @@ void ParmsChangeLevel( void )
 
 	if( pSaveData )
 		pSaveData->connectionCount = BuildChangeList( pSaveData->levelList, MAX_LEVEL_CONNECTIONS );
-
-	changedLevel = true;
 }
 
 //

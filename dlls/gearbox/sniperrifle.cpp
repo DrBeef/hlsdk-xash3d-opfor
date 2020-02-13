@@ -101,6 +101,8 @@ int CSniperrifle::AddToPlayer( CBasePlayer *pPlayer )
 
 void CSniperrifle::Holster( int skiplocal )
 {
+	KillLaser();
+
 	m_fInReload = FALSE;// cancel any reload in progress.
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
 	SendWeaponAnim( SNIPER_HOLSTER );

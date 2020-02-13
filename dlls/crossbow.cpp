@@ -321,6 +321,8 @@ BOOL CCrossbow::Deploy()
 
 void CCrossbow::Holster( int skiplocal /* = 0 */ )
 {
+	KillLaser();
+
 	m_fInReload = FALSE;// cancel any reload in progress.
 
 			/*

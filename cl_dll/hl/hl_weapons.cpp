@@ -271,7 +271,9 @@ Put away weapon
 =====================
 */
 void CBasePlayerWeapon::Holster( int skiplocal /* = 0 */ )
-{ 
+{
+	KillLaser();
+
 	m_fInReload = FALSE; // cancel any reload in progress.
 	g_irunninggausspred = false;
 	m_pPlayer->pev->viewmodel = 0; 
@@ -332,64 +334,108 @@ void CBasePlayerWeapon::Reload( void )
 	KillLaser();
 }
 
-CBeam* CBasePlayerWeapon::g_pLaser = NULL;
+
+#ifndef CLIENT_DLL
+LINK_ENTITY_TO_CLASS( laser_sight, CLaserSight )
+LINK_ENTITY_TO_CLASS( laser_sight_spot, CLaserSpot )
+
+
+//=========================================================
+//=========================================================
+CLaserSight *CLaserSight::CreateLaserSight()
+{
+	CLaserSight *pLaser = GetClassPtr( (CLaserSight *)NULL );
+	pLaser->Spawn();
+
+	pLaser->pev->classname = MAKE_STRING( "laser_sight" );
+
+	return pLaser;
+}
+
+//=========================================================
+//=========================================================
+void CLaserSight::Spawn( void )
+{
+	BeamInit( g_pModelNameLaser, 3 );
+	pev->movetype = MOVETYPE_NONE;
+	pev->solid = SOLID_NOT;
+}
+#endif
 
 void CBasePlayerWeapon::KillLaser( void )
 {
 #ifndef CLIENT_DLL
-	if( g_pLaser )
+	if( m_pLaser)
 	{
-		UTIL_Remove( g_pLaser );
-		g_pLaser = NULL;
+		m_pLaser->Killed( NULL, GIB_NEVER );
+		m_pLaser = NULL;
+	}
+	if( m_pLaserSpot)
+	{
+		m_pLaserSpot->Killed( NULL, GIB_NEVER );
+		m_pLaserSpot = NULL;
 	}
 #endif
 }
-
-void CBasePlayerWeapon::LevelChanged( void )
-{
-	//On level change the laser entity would have been destroyed
-	//so simply create a new one
-#ifndef CLIENT_DLL
-	g_pLaser = NULL;
-	MakeLaser( );
-#endif
-}
-
 
 void CBasePlayerWeapon::MakeLaser( void )
 {
 #ifndef CLIENT_DLL
-
-	if (gEngfuncs.pfnGetCvarFloat("vr_lasersight") == 0.0f)
-	{
-		KillLaser();
+    if (CVAR_GET_FLOAT("vr_lasersight") == 0.0f) {
+        KillLaser();
 		return;
 	}
+	else if (CVAR_GET_FLOAT("vr_lasersight") == 1.0f) {
+        if( m_pLaserSpot)
+        {
+            m_pLaserSpot->Killed( NULL, GIB_NEVER );
+            m_pLaserSpot = NULL;
+        }
 
-	TraceResult tr;
+		TraceResult tr;
+		Vector vecSrc = m_pPlayer->GetGunPosition();
+		Vector vecAiming = m_pPlayer->GetAutoaimVector(AUTOAIM_5DEGREES);
+		Vector vecEnd;
+		vecEnd = vecSrc + vecAiming * 2048;
+		UTIL_TraceLine(vecSrc, vecEnd, dont_ignore_monsters, ENT(pev), &tr);
 
-	// ALERT( at_console, "serverflags %f\n", gpGlobals->serverflags );
+		float flBeamLength = tr.flFraction;
 
-	Vector vecSrc = m_pPlayer->GetGunPosition();
-	Vector vecAiming = m_pPlayer->GetAutoaimVector( AUTOAIM_5DEGREES );
-	Vector vecEnd;
-	vecEnd = vecSrc + vecAiming * 2048;
-	UTIL_TraceLine( vecSrc, vecEnd, dont_ignore_monsters, ENT( pev ), &tr );
+		// set to follow laser spot
+		Vector vecTmpEnd = vecSrc + vecAiming * 2048 * flBeamLength;
+		if (!m_pLaser || !(m_pLaser->pev)) {
+			m_pLaser = CLaserSight::CreateLaserSight();
+		}
 
-	float flBeamLength = tr.flFraction;
-
-	// set to follow laser spot
-	Vector vecTmpEnd = vecSrc + vecAiming * 2048 * flBeamLength;
-	if (!g_pLaser) {
-		g_pLaser = CBeam::BeamCreate(g_pModelNameLaser, 3);
+		m_pLaser->PointsInit(vecSrc, vecTmpEnd);
+		m_pLaser->SetColor(214, 34, 34);
+		m_pLaser->SetScrollRate(255);
+		m_pLaser->SetBrightness(96);
 	}
-	g_pLaser->PointsInit( vecSrc, vecTmpEnd );
-	g_pLaser->SetColor( 214, 34, 34 );
-	g_pLaser->SetScrollRate( 255 );
-	g_pLaser->SetBrightness( 96 );
-	g_pLaser->pev->spawnflags |= SF_BEAM_TEMPORARY;	// Flag these to be destroyed on save/restore or level transition
-	//g_pLaser->pev->flags |= FL_SKIPLOCALHOST;
-	g_pLaser->pev->owner = m_pPlayer->edict();
+	else if (CVAR_GET_FLOAT("vr_lasersight") == 2.0f) {
+        if( m_pLaser)
+        {
+            m_pLaser->Killed( NULL, GIB_NEVER );
+            m_pLaser = NULL;
+        }
+
+		if (!m_pLaserSpot)
+		{
+			m_pLaserSpot = CLaserSpot::CreateSpot();
+			m_pLaserSpot->pev->classname = MAKE_STRING("laser_sight_spot");
+			m_pLaserSpot->pev->scale = 0.5;
+		}
+
+		Vector angles = m_pPlayer->GetWeaponViewAngles();
+		UTIL_MakeVectors( angles );
+		Vector vecSrc = m_pPlayer->GetGunPosition( );;
+		Vector vecAiming = gpGlobals->v_forward;
+
+		TraceResult tr;
+		UTIL_TraceLine ( vecSrc, vecSrc + vecAiming * 8192, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr );
+
+		UTIL_SetOrigin( m_pLaserSpot->pev, tr.vecEndPos );
+	}
 #endif
 }
 

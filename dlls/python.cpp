@@ -116,6 +116,8 @@ BOOL CPython::Deploy()
 
 void CPython::Holster( int skiplocal /* = 0 */ )
 {
+	KillLaser();
+
 	m_fInReload = FALSE;// cancel any reload in progress.
 
 			/*

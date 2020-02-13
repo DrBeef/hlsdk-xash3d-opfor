@@ -2041,6 +2041,44 @@ void PM_Duck( void )
 
 	if( pmove->cmd.buttons & IN_DUCK )
 	{
+		// we're swimming
+		pmove->onground = -1;
+
+		// If we are in the water most of the way...
+		if( pmove->waterlevel >= 2 )
+		{
+			if( pmove->watertype == CONTENTS_WATER )	// We move down a certain amount
+				pmove->velocity[2] = -100;
+			else if( pmove->watertype == CONTENTS_SLIME )
+				pmove->velocity[2] = -80;
+			else // LAVA
+				pmove->velocity[2] = -50;
+
+			// play swiming sound
+			if( pmove->flSwimTime <= 0 )
+			{
+				// Don't play sound again for 1 second
+				pmove->flSwimTime = 1000;
+				switch( pmove->RandomLong( 0, 3 ) )
+				{
+					case 0:
+						pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade1.wav", 1, ATTN_NORM, 0, PITCH_NORM );
+						break;
+					case 1:
+						pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade2.wav", 1, ATTN_NORM, 0, PITCH_NORM );
+						break;
+					case 2:
+						pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade3.wav", 1, ATTN_NORM, 0, PITCH_NORM );
+						break;
+					case 3:
+						pmove->PM_PlaySound( CHAN_BODY, "player/pl_wade4.wav", 1, ATTN_NORM, 0, PITCH_NORM );
+						break;
+				}
+			}
+
+			return;
+		}
+
 		pmove->oldbuttons |= IN_DUCK;
 	}
 	else

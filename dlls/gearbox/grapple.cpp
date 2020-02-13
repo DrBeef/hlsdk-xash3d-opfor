@@ -113,6 +113,8 @@ BOOL CBarnacleGrapple::Deploy()
 
 void CBarnacleGrapple::Holster( int skiplocal /* = 0 */ )
 {
+	KillLaser();
+
 	m_pPlayer->m_flNextAttack = gpGlobals->time + 0.5;
 
 	if( m_fireState != OFF )

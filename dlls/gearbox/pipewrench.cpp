@@ -103,6 +103,8 @@ BOOL CPipeWrench::Deploy( )
 
 void CPipeWrench::Holster( int skiplocal /* = 0 */ )
 {
+	KillLaser();
+
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
 	SendWeaponAnim( PIPEWRENCH_HOLSTER );
 }
