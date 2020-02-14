@@ -154,6 +154,7 @@ LOCAL_SRC_FILES := agrunt.cpp airtank.cpp \
 	   gearbox/massn.cpp \
 	   gearbox/nuclearbomb.cpp \
 	   gearbox/otis.cpp \
+	   gearbox/op4mortar.cpp \
 	   gearbox/penguin.cpp \
 	   gearbox/pipewrench.cpp \
 	   gearbox/pitdrone.cpp \
