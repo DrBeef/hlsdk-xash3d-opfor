@@ -263,6 +263,7 @@ void FWGSInput::IN_Move( float frametime, usercmd_t *cmd )
 			cmd->sidemove  = ac_sidemove * cl_sidespeed->value / ac_movecount;
 		if( ( in_speed.state & 1 ) && ( ac_sidemove || ac_forwardmove ) )
 		{
+			cmd->buttons |= IN_RUN;
 			cmd->forwardmove *= cl_movespeedkey->value;
 			cmd->sidemove *= cl_movespeedkey->value;
 		}

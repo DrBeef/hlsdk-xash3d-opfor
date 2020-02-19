@@ -2041,12 +2041,12 @@ void PM_Duck( void )
 
 	if( pmove->cmd.buttons & IN_DUCK )
 	{
-		// we're swimming
-		pmove->onground = -1;
-
 		// If we are in the water most of the way...
 		if( pmove->waterlevel >= 2 )
 		{
+			// we're swimming
+			pmove->onground = -1;
+
 			if( pmove->watertype == CONTENTS_WATER )	// We move down a certain amount
 				pmove->velocity[2] = -100;
 			else if( pmove->watertype == CONTENTS_SLIME )
