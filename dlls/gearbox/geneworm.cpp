@@ -986,6 +986,7 @@ void CGeneWorm::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector vecDi
 				m_fOrificeHit = TRUE;
 				m_flOrificeOpenTime = gpGlobals->time;
 				m_iWasHit = 1;
+				EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "geneworm/geneworm_shot_in_eye.wav", VOL_NORM, 0.1, 0, 120);
 			}
 			else
 			{
