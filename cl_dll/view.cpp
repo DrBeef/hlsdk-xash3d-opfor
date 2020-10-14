@@ -294,7 +294,7 @@ V_CalcRefdef
 
 bool isScopeEngaged()
 {
-	return gHUD.m_iFOV < 104;
+	return gHUD.m_iFOV < CVAR_GET_FLOAT("vr_fixed_fov");
 }
 
 void V_CalcNormalRefdef( struct ref_params_s *pparams )
