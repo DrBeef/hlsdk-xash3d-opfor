@@ -55,7 +55,7 @@ void VRRenderer::Frame(double time)
 	gEngfuncs.pfnClientCmd("fps_max 144");
 	gEngfuncs.pfnClientCmd("crosshair 0");
 
-	float fov = gEngfuncs.pfnGetCvarFloat("vr_fixed_fov");
+	float fov = gEngfuncs.pfnGetCvarFloat("vr_quest_fov");
 	char buffer[256];
 	sprintf(buffer, "default_fov %f", fov);
     gEngfuncs.pfnClientCmd(buffer);

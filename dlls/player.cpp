@@ -1924,7 +1924,7 @@ void CBasePlayer::PreThink( void )
 	ItemPreFrame();
 	WaterMove();
 
-	const bool isScopeEngaged = (pev->fov != CVAR_GET_FLOAT("vr_fixed_fov") && pev->fov != 0);
+	const bool isScopeEngaged = (pev->fov != CVAR_GET_FLOAT("vr_quest_fov") && pev->fov != 0);
 	if( g_pGameRules && g_pGameRules->FAllowFlashlight() && !isScopeEngaged)
 		m_iHideHUD &= ~HIDEHUD_FLASHLIGHT;
 	else
