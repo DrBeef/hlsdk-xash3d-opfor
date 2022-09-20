@@ -101,8 +101,8 @@ void CCrowbar::Holster( int skiplocal /* = 0 */ )
 	SendWeaponAnim( CROWBAR_HOLSTER );
 }
 
-#define CROWBAR_MIN_SWING_SPEED 70
-#define CROWBAR_LENGTH 24
+#define CROWBAR_MIN_SWING_SPEED 40
+#define CROWBAR_LENGTH 30
 
 void CCrowbar::ItemPostFrame()
 {
