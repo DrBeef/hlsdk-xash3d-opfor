@@ -194,6 +194,8 @@ public:
 
 	CBaseEntity*	m_LastLocalUsableEntity;
     entvars_s		m_LastLocalUsableEntityRenderFX;
+	CBaseEntity*	m_LastLocalUsableEntityAlt;
+    entvars_s		m_LastLocalUsableEntityAltRenderFX;
 
 	// shared ammo slots
 	int	m_rgAmmo[MAX_AMMO_SLOTS];
@@ -294,6 +296,7 @@ public:
 	void WaterMove( void );
 	void EXPORT PlayerDeathThink( void );
 	void PlayerUse( void );
+	void PlayerUseInternal( bool highlightActionables, Vector handOrigin, Vector handAngles, int inUseType );
 
 	void CheckSuitUpdate();
 	void SetSuitUpdate( const char *name, int fgroup, int iNoRepeat );
@@ -407,18 +410,23 @@ private:
     Vector vr_weaponAngles;
     Vector vr_weaponVelocity;
     Vector2D vr_ClientOriginOffset;
+	Vector vr_offhandOffset;
+	Vector vr_offhandAngles;
 
 public:
 	const Vector GetWeaponPosition();
 	const Vector GetWeaponAngles();
 	const Vector GetWeaponViewAngles();
 	const Vector GetWeaponVelocity();
+	const Vector GetOffhandPosition();
+	const Vector GetOffhandAngles();
 	const Vector GetClientOrigin();			// Used by UpdateClientData to send player origin to client
 	const Vector GetClientViewOfs();		// Used by UpdateClientData to send player view_ofs to client
 	bool IsWeaponUnderWater();
 	bool IsWeaponPositionValid();
 	void ClearClientOriginOffset();			// Called by Util_SetOrigin
-	void UpdateVRRelatedPositions(const Vector & vr_hmdOffset, const Vector & vr_weaponOffset, const Vector & weaponAngles, const Vector & weaponVelocity);
+	void UpdateVRRelatedPositions(const Vector & vr_hmdOffset, const Vector & vr_weaponOffset, const Vector & weaponAngles, const Vector & weaponVelocity,
+									const Vector & vr_offhandOffset, const Vector & vr_offhandAngles);
 };
 
 #define AUTOAIM_2DEGREES  0.0348994967025

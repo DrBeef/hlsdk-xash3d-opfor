@@ -939,7 +939,7 @@ void CPushable::Move( CBaseEntity *pOther, int push )
 	if( pOther->IsPlayer() )
 	{
 		// Don't push unless the player is pushing forward and NOT use (pull)
-		if( push && !( pevToucher->button & ( IN_FORWARD | IN_USE ) ) )
+		if( push && !( pevToucher->button & ( IN_FORWARD | IN_USE | IN_USE2 ) ) )
 			return;
 		playerTouch = 1;
 	}

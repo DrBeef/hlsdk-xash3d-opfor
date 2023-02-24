@@ -1480,7 +1480,6 @@ void CBasePlayer::StartObserver( Vector vecPosition, Vector vecViewAngle )
 //
 // PlayerUse - handles USE keypress
 //
-#define	PLAYER_HAND_SEARCH_RADIUS	(float)64
 
 void CBasePlayer::PlayerUse( void )
 {
@@ -1490,11 +1489,11 @@ void CBasePlayer::PlayerUse( void )
 	bool highlightActionables = CVAR_GET_FLOAT("vr_highlight_actionables") == 1.0f;
 
 	// Was use pressed or released?
-	if (!highlightActionables && !( ( pev->button | m_afButtonPressed | m_afButtonReleased) & IN_USE ) )
+	if (!highlightActionables && !( ( pev->button | m_afButtonPressed | m_afButtonReleased) & ( IN_USE | IN_USE2 ) ) )
 		return;
 
 	// Hit Use on a train?
-	if( m_afButtonPressed & IN_USE )
+	if( m_afButtonPressed & ( IN_USE | IN_USE2 ) )
 	{
 		if( m_pTank != 0 )
 		{
@@ -1527,24 +1526,39 @@ void CBasePlayer::PlayerUse( void )
 		}
 	}
 
+	bool gestureTriggeredUseEnabled = CVAR_GET_FLOAT("vr_gesture_triggered_use") == 1.0f;
+	// With gesture triggered use, spawn separate use for each hand
+	if (gestureTriggeredUseEnabled) {
+		PlayerUseInternal(highlightActionables, GetOffhandPosition(), GetOffhandAngles(), IN_USE2);
+	}
+	PlayerUseInternal(highlightActionables, GetWeaponPosition(), GetWeaponViewAngles(), IN_USE);
+}
+
+#define	PLAYER_HAND_SEARCH_RADIUS			(float) 64
+#define PLAYER_HAND_SEARCH_RADIUS_GESTURE   (float) 32
+
+void CBasePlayer::PlayerUseInternal( bool highlightActionables, Vector handOrigin, Vector handAngles, int inUseType )
+{
 	CBaseEntity *pObject = NULL;
 	CBaseEntity *pClosest = NULL;
 	Vector vecLOS;
 	float flMaxDot = VIEW_FIELD_NARROW;
 	float flDot;
 
-    //Use the item in the vicinity of the player's hand that the hand is pointed towards
-    Vector weaponOrigin = GetWeaponPosition();
-	UTIL_MakeVectors(GetWeaponViewAngles());
+	bool gestureTriggeredUseEnabled = CVAR_GET_FLOAT("vr_gesture_triggered_use") == 1.0f;
+	float searchRadius = gestureTriggeredUseEnabled ? PLAYER_HAND_SEARCH_RADIUS_GESTURE : PLAYER_HAND_SEARCH_RADIUS;
+	int hapticFeedback = inUseType == IN_USE2 ? (int) CVAR_GET_FLOAT("hand") : 1 - (int) CVAR_GET_FLOAT("hand");
 
-	while( ( pObject = UTIL_FindEntityInSphere( pObject, weaponOrigin, PLAYER_HAND_SEARCH_RADIUS ) ) != NULL )
+    // Use the item in the vicinity of the player's hand that the hand is pointed towards
+	UTIL_MakeVectors(handAngles);
+	while( ( pObject = UTIL_FindEntityInSphere( pObject, handOrigin, searchRadius ) ) != NULL )
 	{
 		if( pObject->ObjectCaps() & ( FCAP_IMPULSE_USE | FCAP_CONTINUOUS_USE | FCAP_ONOFF_USE ) )
 		{
 			// !!!PERFORMANCE- should this check be done on a per case basis AFTER we've determined that
 			// this object is actually usable? This dot is being done for every object within PLAYER_SEARCH_RADIUS
 			// when player hits the use key. How many objects can be in that area, anyway? (sjb)
-			vecLOS = ( VecBModelOrigin( pObject->pev ) - ( weaponOrigin + pev->view_ofs ) );
+			vecLOS = ( VecBModelOrigin( pObject->pev ) - ( handOrigin + pev->view_ofs ) );
 
 			// This essentially moves the origin of the target to the corner nearest the player to test to see 
 			// if it's "hull" is in the view cone
@@ -1563,18 +1577,27 @@ void CBasePlayer::PlayerUse( void )
 	}
 	pObject = pClosest;
 
-	if (highlightActionables && m_LastLocalUsableEntity)
-	{
-	    //Restore previous values
-		m_LastLocalUsableEntity->pev->rendermode = m_LastLocalUsableEntityRenderFX.rendermode;
-		m_LastLocalUsableEntity->pev->renderfx = m_LastLocalUsableEntityRenderFX.renderfx;
-		m_LastLocalUsableEntity->pev->renderamt = m_LastLocalUsableEntityRenderFX.renderamt;
+	if (inUseType == IN_USE2) {
+		if (highlightActionables && m_LastLocalUsableEntityAlt) {
+			//Restore previous values
+			m_LastLocalUsableEntityAlt->pev->rendermode = m_LastLocalUsableEntityAltRenderFX.rendermode;
+			m_LastLocalUsableEntityAlt->pev->renderfx = m_LastLocalUsableEntityAltRenderFX.renderfx;
+			m_LastLocalUsableEntityAlt->pev->renderamt = m_LastLocalUsableEntityAltRenderFX.renderamt;
+		}
+		m_LastLocalUsableEntityAlt = nullptr;
+	} else{
+		if (highlightActionables && m_LastLocalUsableEntity) {
+			//Restore previous values
+			m_LastLocalUsableEntity->pev->rendermode = m_LastLocalUsableEntityRenderFX.rendermode;
+			m_LastLocalUsableEntity->pev->renderfx = m_LastLocalUsableEntityRenderFX.renderfx;
+			m_LastLocalUsableEntity->pev->renderamt = m_LastLocalUsableEntityRenderFX.renderamt;
+		}
+		m_LastLocalUsableEntity = nullptr;
 	}
-    m_LastLocalUsableEntity = nullptr;
 
 	//Check player hasn't put their hand through a wall to use this
     TraceResult tr;
-    Vector vecSrc = weaponOrigin;
+    Vector vecSrc = handOrigin;
     Vector vecEnd = EyePosition();
     UTIL_TraceLine( vecSrc, vecEnd, ignore_monsters, edict(), &tr );
 
@@ -1589,18 +1612,18 @@ void CBasePlayer::PlayerUse( void )
 
 		bool usingObject = false;
 
-		if( m_afButtonPressed & IN_USE )
+		if( m_afButtonPressed & inUseType )
 			EMIT_SOUND( ENT(pev), CHAN_ITEM, "common/wpn_select.wav", 0.4, ATTN_NORM );
 
-		if( ( ( pev->button & IN_USE ) && ( caps & FCAP_CONTINUOUS_USE ) ) ||
-			 ( ( m_afButtonPressed & IN_USE ) && ( caps & ( FCAP_IMPULSE_USE | FCAP_ONOFF_USE ) ) ) )
+		if( ( ( pev->button & inUseType ) && ( caps & FCAP_CONTINUOUS_USE ) ) ||
+			 ( ( m_afButtonPressed & inUseType ) && ( caps & ( FCAP_IMPULSE_USE | FCAP_ONOFF_USE ) ) ) )
 		{
             char buffer[256];
 			if( caps & FCAP_CONTINUOUS_USE ) {
 				m_afPhysicsFlags |= PFLAG_USING;
 
                 //pulse-vibrate
-                sprintf(buffer, "vibrate 10.0 %i %f\n", 1 - (int) CVAR_GET_FLOAT("hand"),
+                sprintf(buffer, "vibrate 10.0 %i %f\n", hapticFeedback,
                         sin(gpGlobals->time * 12.0f) * 0.6f);
 
                 usingObject = true;
@@ -1610,7 +1633,7 @@ void CBasePlayer::PlayerUse( void )
                 //big blip to indicate "used" and then stop vibrating
                 if (!itemUsedHaptic) {
 					char buffer[256];
-					sprintf(buffer, "vibrate 250.0 %i 1.0\n", 1 - (int) CVAR_GET_FLOAT("hand"));
+					sprintf(buffer, "vibrate 250.0 %i 1.0\n", hapticFeedback);
 					SERVER_COMMAND(buffer);
 
 					//Set flag so we stop haptics for now
@@ -1623,7 +1646,7 @@ void CBasePlayer::PlayerUse( void )
             SERVER_COMMAND(buffer);
 		}
 		// UNDONE: Send different USE codes for ON/OFF.  Cache last ONOFF_USE object to send 'off' if you turn away
-		else if( ( m_afButtonReleased & IN_USE ) ) {
+		else if( ( m_afButtonReleased & inUseType ) ) {
 			if (pObject->ObjectCaps() & FCAP_ONOFF_USE)    // BUGBUG This is an "off" use
 		{
 			pObject->Use( this, this, USE_SET, 0 );
@@ -1641,23 +1664,42 @@ void CBasePlayer::PlayerUse( void )
             pObject->Classify() != CLASS_PLAYER_ALLY &&
             pObject->Classify() != CLASS_PLAYER_ALLY_MILITARY)
         {
-            //Make newly located object glow if we are in a position to trigger it
-            m_LastLocalUsableEntity = pObject;
+            bool doHighlight = false;
+            if (inUseType == IN_USE2) {
+                // Make newly located object glow if we are in a position to trigger it
+                // (only in case it is not highlighted by other hand)
+                if (m_LastLocalUsableEntity != pObject) {
+                    doHighlight = true;
+                    m_LastLocalUsableEntityAlt = pObject;
+                    // save the object's current render fx
+                    m_LastLocalUsableEntityAltRenderFX.rendermode = pObject->pev->rendermode;
+                    m_LastLocalUsableEntityAltRenderFX.renderfx = pObject->pev->renderfx;
+                    m_LastLocalUsableEntityAltRenderFX.renderamt = pObject->pev->renderamt;
+                }
+            } else {
+                //Make newly located object glow if we are in a position to trigger it
+                // (only in case it is not highlighted by other hand)
+                if (m_LastLocalUsableEntityAlt != pObject) {
+                    doHighlight = true;
+                    m_LastLocalUsableEntity = pObject;
+                    // save the object's current render fx
+                    m_LastLocalUsableEntityRenderFX.rendermode = pObject->pev->rendermode;
+                    m_LastLocalUsableEntityRenderFX.renderfx = pObject->pev->renderfx;
+                    m_LastLocalUsableEntityRenderFX.renderamt = pObject->pev->renderamt;
+                }
+            }
 
-            // save the object's current render fx
-            m_LastLocalUsableEntityRenderFX.rendermode = pObject->pev->rendermode;
-            m_LastLocalUsableEntityRenderFX.renderfx = pObject->pev->renderfx;
-            m_LastLocalUsableEntityRenderFX.renderamt = pObject->pev->renderamt;
-
-            //Update with "glowing" attributes
-            pObject->pev->renderfx = usingObject ? kRenderFxNoDissipation : kRenderFxPulseFast;
-            pObject->pev->rendermode = kRenderGlow;
-            pObject->pev->renderamt = 192;
+            if (doHighlight) {
+                //Update with "glowing" attributes
+                pObject->pev->renderfx = usingObject ? kRenderFxNoDissipation : kRenderFxPulseFast;
+                pObject->pev->rendermode = kRenderGlow;
+                pObject->pev->renderamt = 192;
+            }
 
             if (!usingObject && !itemUsedHaptic) {
                 //continuous vibrate to indicate "usable"
                 char buffer[256];
-                sprintf(buffer, "vibrate 10.0 %i 0.1\n", 1-(int)CVAR_GET_FLOAT("hand"));
+                sprintf(buffer, "vibrate 10.0 %i 0.1\n", hapticFeedback);
                 SERVER_COMMAND(buffer);
             }
         }
@@ -1666,7 +1708,8 @@ void CBasePlayer::PlayerUse( void )
 	{
         itemUsedHaptic = false;
 
-		if( m_afButtonPressed & IN_USE )
+		if( ( m_afButtonPressed & inUseType ) && !gestureTriggeredUseEnabled )
+            // Do not use denied sound when activated via use gesture (there will be many while waving hands around)
 			EMIT_SOUND( ENT( pev ), CHAN_ITEM, "common/wpn_denyselect.wav", 0.4, ATTN_NORM );
 	}
 }
@@ -3154,6 +3197,7 @@ void CBasePlayer::Spawn( void )
 	}
 
 	m_LastLocalUsableEntity = nullptr;
+	m_LastLocalUsableEntityAlt = nullptr;
 
 	m_lastx = m_lasty = 0;
 
@@ -4966,7 +5010,8 @@ void CBasePlayer::ClearClientOriginOffset()
 	vr_ClientOriginOffset.x = 0;
 	vr_ClientOriginOffset.y = 0;
 }
-void CBasePlayer::UpdateVRRelatedPositions(const Vector & hmdOffset, const Vector & weaponOffset, const Vector & weaponAngles, const Vector & weaponVelocity)
+void CBasePlayer::UpdateVRRelatedPositions(const Vector & hmdOffset, const Vector & weaponOffset, const Vector & weaponAngles, const Vector & weaponVelocity,
+											const Vector & offhandOffset, const Vector & offhandAngles)
 {
 	// First get origin where the client thinks it is:
 	Vector clientOrigin = GetClientOrigin();
@@ -4981,6 +5026,8 @@ void CBasePlayer::UpdateVRRelatedPositions(const Vector & hmdOffset, const Vecto
 	vr_weaponOffset = weaponOffset;
 	vr_weaponAngles = weaponAngles;
 	vr_weaponVelocity = weaponVelocity;
+	vr_offhandOffset = offhandOffset;
+	vr_offhandAngles = offhandAngles;
 }
 const Vector CBasePlayer::GetWeaponPosition()
 {
@@ -4999,6 +5046,14 @@ const Vector CBasePlayer::GetWeaponViewAngles()
 const Vector CBasePlayer::GetWeaponVelocity()
 {
 	return vr_weaponVelocity;
+}
+const Vector CBasePlayer::GetOffhandPosition()
+{
+	return Vector(pev->origin.x + vr_offhandOffset.x, pev->origin.y + vr_offhandOffset.y, vr_offhandOffset.z);
+}
+const Vector CBasePlayer::GetOffhandAngles()
+{
+	return vr_offhandAngles;
 }
 const Vector CBasePlayer::GetClientOrigin()
 {
