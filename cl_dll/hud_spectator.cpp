@@ -641,7 +641,7 @@ void CHudSpectator::HandleButtonsDown( int ButtonPressed )
 	//	gViewPort->m_pSpectatorPanel->ShowMenu( !gViewPort->m_pSpectatorPanel->m_menuVisible );
 
 	//  'Use' changes inset window mode
-	if( ButtonPressed & IN_USE )
+	if( ButtonPressed & ( IN_USE | IN_USE2 ) )
 	{
 		newInsetMode = ToggleInset( true );
 	}

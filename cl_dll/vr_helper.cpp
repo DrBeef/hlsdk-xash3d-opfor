@@ -67,6 +67,7 @@ bool VRHelper::UpdatePositions(struct ref_params_s* pparams)
 	positions.viewangles = pparams->viewangles;
 
 	UpdateGunPosition(pparams);
+	UpdateOffhandPosition(pparams);
 
 	SendPositionUpdateToServer();
 
@@ -142,21 +143,37 @@ void VRHelper::UpdateGunPosition(struct ref_params_s* pparams)
 	}
 }
 
+void VRHelper::UpdateOffhandPosition(struct ref_params_s* pparams)
+{
+	cl_entity_t *viewent = gEngfuncs.GetViewModel();
+	if (viewent != nullptr)
+	{
+		Vector clientPosition = pparams->vieworg;
+		positions.flashlight.offset =  Vector(pparams->flashlight.org.x, pparams->flashlight.org.y, clientPosition.z + pparams->flashlight.org.z);
+		positions.flashlight.angles = pparams->flashlight.angles.adjusted;
+		positions.flashlight.velocity = pparams->flashlight.velocity;
+	}
+}
+
 void VRHelper::SendPositionUpdateToServer()
 {
 	Vector hmdOffset; // Not required
 	Vector weaponOffset = positions.weapon.offset;
 	Vector weaponAngles = positions.weapon.angles;
 	Vector weaponVelocity = positions.weapon.velocity;
+	Vector offhandOffset = positions.flashlight.offset;
+	Vector offhandAngles = positions.flashlight.angles;
 
 	if (!bIsMultiplayer()) {
         // void CBasePlayer::UpdateVRRelatedPositions(const Vector & hmdOffset, const Vector & weaponoffset, const Vector & weaponAngles, const Vector & weaponVelocity)
         char cmd[MAX_COMMAND_SIZE] = {0};
-        sprintf(cmd, "updatevr %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f",
+        sprintf(cmd, "updatevr %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f",
                 hmdOffset.x, hmdOffset.y, hmdOffset.z,
                 weaponOffset.x, weaponOffset.y, weaponOffset.z,
                 weaponAngles.x, weaponAngles.y, weaponAngles.z,
-                weaponVelocity.x, weaponVelocity.y, weaponVelocity.z
+                weaponVelocity.x, weaponVelocity.y, weaponVelocity.z,
+                offhandOffset.x, offhandOffset.y, offhandOffset.z,
+                offhandAngles.x, offhandAngles.y, offhandAngles.z
         );
 
         gEngfuncs.pfnClientCmd(cmd);

@@ -39,6 +39,7 @@ private:
 	void Exit(const char* lpErrorMessage = nullptr);
 
 	void UpdateGunPosition(struct ref_params_s* pparams);
+	void UpdateOffhandPosition(struct ref_params_s* pparams);
 	void SendPositionUpdateToServer();
 
 /*
