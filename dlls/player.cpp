@@ -1535,18 +1535,20 @@ void CBasePlayer::PlayerUse( void )
 }
 
 #define	PLAYER_HAND_SEARCH_RADIUS			(float) 64
-#define PLAYER_HAND_SEARCH_RADIUS_GESTURE   (float) 32
+#define PLAYER_HAND_SEARCH_RADIUS_GESTURE	(float) 24
+#define VIEW_FIELD_GESTURE					(float) 0 // 90 degrees
 
 void CBasePlayer::PlayerUseInternal( bool highlightActionables, Vector handOrigin, Vector handAngles, int inUseType )
 {
 	CBaseEntity *pObject = NULL;
 	CBaseEntity *pClosest = NULL;
 	Vector vecLOS;
-	float flMaxDot = VIEW_FIELD_NARROW;
 	float flDot;
 
 	bool gestureTriggeredUseEnabled = CVAR_GET_FLOAT("vr_gesture_triggered_use") == 1.0f;
+	// For use gesture, use closer distance but wider angle
 	float searchRadius = gestureTriggeredUseEnabled ? PLAYER_HAND_SEARCH_RADIUS_GESTURE : PLAYER_HAND_SEARCH_RADIUS;
+	float flMaxDot = gestureTriggeredUseEnabled ? VIEW_FIELD_GESTURE : VIEW_FIELD_NARROW;
 	int hapticFeedback = inUseType == IN_USE2 ? (int) CVAR_GET_FLOAT("hand") : 1 - (int) CVAR_GET_FLOAT("hand");
 
     // Use the item in the vicinity of the player's hand that the hand is pointed towards
